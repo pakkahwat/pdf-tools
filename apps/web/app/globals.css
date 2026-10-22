@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f5f6fa;
+  --card: #ffffff;
+  --fg: #0f172a;
+  --muted: #5b6475;
+  --line: #e3e7ef;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-fg: #ffffff;
+  --primary-soft: #eaf1ff;
+  --danger: #c81e1e;
+  --danger-soft: #fdecec;
+  --ok: #15803d;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c1120;
+    --card: #141b2e;
+    --fg: #e6e9f0;
+    --muted: #9aa4b8;
+    --line: #253049;
+    --primary: #6aa1ff;
+    --primary-hover: #8db7ff;
+    --primary-fg: #0c1120;
+    --primary-soft: #18264a;
+    --danger: #ff8a8a;
+    --danger-soft: #3a1820;
+    --ok: #4ade80;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-soft: var(--primary-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-kanit), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* พื้นหลังของช่องภาพย่อหน้า PDF — เข้มกว่าการ์ดเล็กน้อยให้เห็นขอบหน้ากระดาษสีขาว */
+.thumb-bg {
+  background-color: #e9edf3;
+}
+@media (prefers-color-scheme: dark) {
+  .thumb-bg {
+    background-color: #0f1626;
+  }
+}
