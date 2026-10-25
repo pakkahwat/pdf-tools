@@ -8,7 +8,10 @@ export async function textToPng(
   opts: { family: string; weight: number; sizePx: number; color: string },
 ): Promise<TextImage> {
   const font = `${opts.weight} ${opts.sizePx}px ${opts.family}`;
-  await document.fonts.load(font, text);
+  // โหลดเฉพาะฟอนต์ตัวแรก: next/font ใส่ฟอนต์สำรอง local("Arial") ไว้ในรายการ ซึ่งเครื่องที่ไม่มี Arial (เช่น Linux)
+  // จะโหลดไม่ได้และทำให้ fonts.load() ล้มทั้งชุด — ถ้าโหลดไม่ได้จริง ๆ ก็วาดด้วยฟอนต์ที่มีในเครื่องต่อไป
+  const primary = opts.family.split(",")[0].trim();
+  await document.fonts.load(`${opts.weight} ${opts.sizePx}px ${primary}`, text).catch(() => undefined);
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
