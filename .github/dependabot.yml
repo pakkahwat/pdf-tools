@@ -8,6 +8,11 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # ข้ามอัปเดตใหญ่ (major) ทั้งหมด — มักมี breaking change และต้องรอ Next.js/ecosystem รองรับก่อน
+      # (รวมถึง @types/node ที่ต้องตรงกับ Node 22 ที่ใช้รันจริง) — อัปเองเมื่อพร้อม
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
 
   - package-ecosystem: github-actions
