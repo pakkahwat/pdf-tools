@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { ActionBar } from "@/components/action-bar";
 import { Dropzone } from "@/components/dropzone";
 import { PageThumb } from "@/components/page-thumb";
-import { noDrag, SortableList } from "@/components/sortable";
-import { TaskStatus } from "@/components/task-status";
-import { Button, ErrorBox, Panel, Segmented, ToolLayout } from "@/components/ui";
+import { MoveButtons, OverlayButton, SortableList } from "@/components/sortable";
+import { EmptyState, ErrorBox, Panel, Segmented, Steps, ToolLayout } from "@/components/ui";
 import { pdfBlob } from "@/lib/files";
 import { IMAGE_ACCEPT, isImageFile, prepareImage } from "@/lib/images";
 import { runPdf } from "@/lib/pdf/client";
@@ -73,92 +73,95 @@ export function ImagesToPdfTool() {
   };
   const rejected = (names: string[]) =>
     setNotice(`ข้ามไฟล์ที่ไม่รองรับ: ${names.join(", ")} (รองรับ JPG, PNG, WebP, GIF, BMP)`);
+  const broken = items.some((i) => i.thumb === "");
 
   if (items.length === 0) {
     return (
-      <div className="space-y-4">
-        {notice && <ErrorBox message={notice} />}
-        <Dropzone
-          accept={IMAGE_ACCEPT}
-          multiple
-          filter={isImageFile}
-          onFiles={add}
-          onRejected={rejected}
-          buttonLabel="เลือกรูปภาพ"
-          hint="JPG, PNG, WebP, GIF, BMP — เลือกได้หลายรูป แต่ละรูปจะเป็น 1 หน้า"
-        />
-      </div>
+      <>
+        <Steps current={1} />
+        <EmptyState error={notice}>
+          <Dropzone
+            accept={IMAGE_ACCEPT}
+            multiple
+            filter={isImageFile}
+            onFiles={add}
+            onRejected={rejected}
+            buttonLabel="เลือกรูปภาพ"
+            hint="JPG, PNG, WebP, GIF, BMP — เลือกได้หลายรูป แต่ละรูปจะเป็น 1 หน้า"
+          />
+        </EmptyState>
+      </>
     );
   }
 
   return (
-    <ToolLayout
-      main={
-        <div className="space-y-4">
-          {notice && <ErrorBox message={notice} />}
-          <p className="text-sm text-muted">ลากเพื่อเรียงลำดับหน้า (มือถือ: กดค้างแล้วลาก)</p>
-          <SortableList
-            items={items}
-            onChange={change}
-            layout="grid"
-            className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4"
-            itemLabel={(item, i) => `หน้า ${i + 1} ${item.file.name}`}
-          >
-            {(item, i) => (
-              <div className="rounded-2xl border border-line bg-card p-2">
-                <div className="relative">
-                  <PageThumb src={item.thumb} alt={item.file.name} />
-                  <span className="absolute left-2 top-2 grid h-6 min-w-6 place-items-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-fg">
-                    {i + 1}
-                  </span>
-                  <button
-                    type="button"
-                    {...noDrag}
-                    onClick={() => change(items.filter((x) => x.id !== item.id))}
-                    aria-label={`เอา ${item.file.name} ออก`}
-                    className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-card/90 text-muted shadow hover:text-danger"
-                  >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden>
-                      <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" />
-                    </svg>
-                  </button>
+    <>
+      <Steps current={task.state.status === "done" ? 3 : 2} />
+      <ToolLayout
+        main={
+          <div className="space-y-4">
+            {notice && <ErrorBox message={notice} />}
+            <p className="text-sm text-muted">เรียงลำดับหน้าได้ด้วยปุ่มลูกศร หรือลากการ์ด (มือถือ: กดค้างแล้วลาก)</p>
+            <SortableList
+              items={items}
+              onChange={change}
+              layout="grid"
+              className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4"
+              itemLabel={(item, i) => `หน้า ${i + 1} ${item.file.name}`}
+            >
+              {(item, i, move) => (
+                <div className="rounded-2xl border border-line bg-card p-2">
+                  <div className="relative">
+                    <PageThumb src={item.thumb} alt={item.file.name} />
+                    <span className="absolute left-2 top-2 grid h-7 min-w-7 place-items-center rounded-full bg-primary px-2 text-sm font-bold text-primary-fg shadow">
+                      {i + 1}
+                    </span>
+                    <div className="absolute right-2 top-2">
+                      <OverlayButton label={`เอา ${item.file.name} ออก`} tone="danger" onClick={() => change(items.filter((x) => x.id !== item.id))}>
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden>
+                          <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" />
+                        </svg>
+                      </OverlayButton>
+                    </div>
+                  </div>
+                  <p className="mt-2 truncate px-1 text-sm" title={item.file.name}>
+                    {item.thumb === "" ? <span className="text-danger">เปิดรูปไม่ได้</span> : item.file.name}
+                  </p>
+                  <MoveButtons index={i} count={items.length} move={move} name={`รูป ${item.file.name} `} />
                 </div>
-                <p className="mt-2 truncate px-1 text-xs text-muted" title={item.file.name}>
-                  {item.thumb === "" ? <span className="text-danger">เปิดรูปไม่ได้</span> : item.file.name}
-                </p>
-              </div>
-            )}
-          </SortableList>
-        </div>
-      }
-      side={
-        <>
-          <Panel className="space-y-5">
-            <Segmented label="ขนาดหน้า" value={opts.pageSize} options={SIZES} onChange={(v) => setOpt("pageSize", v)} />
-            {opts.pageSize !== "fit" && (
-              <Segmented
-                label="แนวกระดาษ"
-                value={opts.orientation}
-                options={ORIENTATIONS}
-                onChange={(v) => setOpt("orientation", v)}
+              )}
+            </SortableList>
+          </div>
+        }
+        side={
+          <>
+            <Panel title="หน้ากระดาษ">
+              <Segmented label="ขนาดหน้า" value={opts.pageSize} options={SIZES} onChange={(v) => setOpt("pageSize", v)} />
+              {opts.pageSize !== "fit" && (
+                <Segmented
+                  label="แนวกระดาษ"
+                  value={opts.orientation}
+                  options={ORIENTATIONS}
+                  onChange={(v) => setOpt("orientation", v)}
+                />
+              )}
+              <Segmented label="ขอบกระดาษ" value={opts.margin} options={MARGINS} onChange={(v) => setOpt("margin", v)} />
+              <Dropzone
+                compact
+                accept={IMAGE_ACCEPT}
+                multiple
+                filter={isImageFile}
+                onFiles={add}
+                onRejected={rejected}
+                buttonLabel="เพิ่มรูป"
               />
-            )}
-            <Segmented label="ขอบกระดาษ" value={opts.margin} options={MARGINS} onChange={(v) => setOpt("margin", v)} />
-            <Dropzone
-              compact
-              accept={IMAGE_ACCEPT}
-              multiple
-              filter={isImageFile}
-              onFiles={add}
-              onRejected={rejected}
-              buttonLabel="เพิ่มรูป"
-            />
-            <Button
-              variant="primary"
-              size="lg"
-              className="w-full"
-              disabled={task.state.status === "working" || items.some((i) => i.thumb === "")}
-              onClick={() =>
+            </Panel>
+            <ActionBar
+              task={task}
+              label={`แปลงเป็น PDF (${items.length} หน้า)`}
+              disabled={broken}
+              hint={broken ? "เอารูปที่เปิดไม่ได้ออกก่อน (รูป HEIC ให้แปลงเป็น JPG ก่อน)" : undefined}
+              onRun={() =>
                 task.run(async (progress) => {
                   const inputs: ImageInput[] = [];
                   for (const [k, item] of items.entries()) {
@@ -170,16 +173,11 @@ export function ImagesToPdfTool() {
                   return { blob: pdfBlob(bytes), name: "images.pdf", note: `${items.length} หน้า` };
                 })
               }
-            >
-              แปลงเป็น PDF ({items.length} หน้า)
-            </Button>
-            {items.some((i) => i.thumb === "") && (
-              <p className="text-xs text-danger">เอารูปที่เปิดไม่ได้ออกก่อน (รูป HEIC ให้แปลงเป็น JPG ก่อน)</p>
-            )}
-          </Panel>
-          <TaskStatus task={task} onStartOver={() => change([])} />
-        </>
-      }
-    />
+              onStartOver={() => change([])}
+            />
+          </>
+        }
+      />
+    </>
   );
 }

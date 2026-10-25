@@ -52,7 +52,7 @@ const PATHS: Record<ToolSlug | "soon", React.ReactNode> = {
   "page-numbers": (
     <>
       <rect x="4" y="2" width="16" height="20" rx="1.5" />
-      <path d="M10 13h4M10.5 17l1-6M13.5 17l1-6" transform="translate(-1 0)" />
+      <path d="M9 10.5h6M9 14.5h6M11 8.5l-1 8M14 8.5l-1 8" />
     </>
   ),
   soon: (

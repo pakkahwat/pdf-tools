@@ -1,35 +1,49 @@
 @import "tailwindcss";
 
+/*
+ * ธีม Minimal/Swiss (จาก ui-ux-pro-max): สีหลักเขียวอมฟ้า (teal) สำหรับสถานะ/การเลือก
+ * และสีส้มสำหรับปุ่มลงมือทำเพียงปุ่มเดียวต่อหน้าจอ — ทุกคู่สีตัวอักษรผ่าน 4.5:1 ทั้งโหมดสว่างและมืด
+ */
 :root {
-  --bg: #f5f6fa;
+  --bg: #f5f8f7;
   --card: #ffffff;
-  --fg: #0f172a;
-  --muted: #5b6475;
-  --line: #e3e7ef;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
+  --fg: #11272a;
+  --muted: #4d6163;
+  --line: #dbe5e3;
+  --primary: #0f766e;
+  --primary-hover: #115e59;
   --primary-fg: #ffffff;
-  --primary-soft: #eaf1ff;
-  --danger: #c81e1e;
+  --primary-soft: #e3f3f0;
+  --cta: #c2410c;
+  --cta-hover: #9a3412;
+  --cta-fg: #ffffff;
+  --danger: #b91c1c;
   --danger-soft: #fdecec;
   --ok: #15803d;
+  --ok-soft: #e7f6ec;
+  --thumb: #e8eeed;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0c1120;
-    --card: #141b2e;
-    --fg: #e6e9f0;
-    --muted: #9aa4b8;
-    --line: #253049;
-    --primary: #6aa1ff;
-    --primary-hover: #8db7ff;
-    --primary-fg: #0c1120;
-    --primary-soft: #18264a;
-    --danger: #ff8a8a;
-    --danger-soft: #3a1820;
+    --bg: #0b1413;
+    --card: #12201f;
+    --fg: #e4eeec;
+    --muted: #9fb5b2;
+    --line: #243a38;
+    --primary: #2dd4bf;
+    --primary-hover: #5eead4;
+    --primary-fg: #042f2b;
+    --primary-soft: #133a36;
+    --cta: #fb923c;
+    --cta-hover: #fdba74;
+    --cta-fg: #2a1204;
+    --danger: #fca5a5;
+    --danger-soft: #3b1a1d;
     --ok: #4ade80;
+    --ok-soft: #12301f;
+    --thumb: #0e1918;
     color-scheme: dark;
   }
 }
@@ -44,23 +58,57 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-fg: var(--primary-fg);
   --color-primary-soft: var(--primary-soft);
+  --color-cta: var(--cta);
+  --color-cta-hover: var(--cta-hover);
+  --color-cta-fg: var(--cta-fg);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-ok: var(--ok);
-  --font-sans: var(--font-kanit), ui-sans-serif, system-ui, sans-serif;
+  --color-ok-soft: var(--ok-soft);
+  --color-thumb: var(--thumb);
+  --font-sans: var(--font-jakarta), var(--font-noto-thai), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
   background: var(--bg);
   color: var(--fg);
+  line-height: 1.6;
 }
 
-/* พื้นหลังของช่องภาพย่อหน้า PDF — เข้มกว่าการ์ดเล็กน้อยให้เห็นขอบหน้ากระดาษสีขาว */
-.thumb-bg {
-  background-color: #e9edf3;
+/* Tailwind v4 ไม่ใส่ cursor: pointer ให้ปุ่มแล้ว — ใส่คืนให้ทุกอย่างที่กดได้ */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+label:has(> input[type="color"]),
+summary {
+  cursor: pointer;
 }
-@media (prefers-color-scheme: dark) {
-  .thumb-bg {
-    background-color: #0f1626;
+
+/* ตัดหน่วงเวลาแตะ 300ms บนมือถือ */
+a,
+button,
+input,
+label,
+summary {
+  touch-action: manipulation;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+::selection {
+  background: var(--primary-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

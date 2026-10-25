@@ -16,7 +16,7 @@ async function upload(page: Page, files: Upload[]) {
 
 async function runTool(page: Page, button: string) {
   await page.getByRole("button", { name: button, exact: true }).click();
-  await expect(page.getByText("เสร็จแล้ว")).toBeVisible();
+  await expect(page.getByText("เสร็จแล้ว", { exact: true })).toBeVisible();
 }
 
 /** กดดาวน์โหลดแล้วคืนชื่อไฟล์ + เนื้อไฟล์ */
@@ -30,9 +30,19 @@ const magic = (b: Uint8Array) => Array.from(b.slice(0, 4));
 test("หน้าแรกแสดงเครื่องมือทั้ง 8 และกดเข้าใช้งานได้", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("PDF");
-  await expect(page.locator("main ul").first().getByRole("link")).toHaveCount(8);
-  await page.getByRole("link", { name: /รวม PDF/ }).click();
+  await expect(page.locator("#tools").getByRole("link")).toHaveCount(8);
+  await page.locator("#tools").getByRole("link", { name: /รวม PDF/ }).click();
   await expect(page).toHaveURL(/\/merge$/);
+  await expect(page.getByRole("list", { name: "ขั้นตอนการใช้งาน" })).toBeVisible();
+});
+
+test("เปลี่ยนลำดับไฟล์ด้วยปุ่มลูกศร (ไม่ต้องลาก)", async ({ page }) => {
+  await page.goto("/merge");
+  await upload(page, [await pdf("a.pdf", 1, [[200, 200]]), await pdf("b.pdf", 1, [[300, 300]])]);
+  await expect(page.getByText("2 ไฟล์ · รวม 2 หน้า")).toBeVisible();
+  await page.getByRole("button", { name: "เลื่อนไฟล์ a.pdf ไปถัดไป" }).click();
+  await runTool(page, "รวม PDF");
+  expect((await inspectPdf((await download(page)).bytes)).map((p) => p.width)).toEqual([300, 200]);
 });
 
 test("รวม PDF ตามลำดับไฟล์", async ({ page }) => {

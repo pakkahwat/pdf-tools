@@ -1,4 +1,4 @@
-// รายการเครื่องมือ — ใช้สร้างหน้าแรก, หัวข้อแต่ละหน้า และ metadata
+// รายการเครื่องมือ — ใช้สร้างหน้าแรก, หัวข้อแต่ละหน้า, ลิงก์เครื่องมืออื่น และ metadata
 
 export const SITE = {
   name: "PDF Tools",
@@ -15,22 +15,31 @@ export type ToolSlug =
   | "watermark"
   | "page-numbers";
 
+export type ToolCategory = "organize" | "convert" | "edit";
+
 export type Tool = {
   slug: ToolSlug;
   title: string;
   summary: string;
   color: string;
+  category: ToolCategory;
 };
 
+export const CATEGORIES: { id: ToolCategory; title: string; summary: string }[] = [
+  { id: "organize", title: "จัดระเบียบ PDF", summary: "รวม แยก เรียง หมุนหน้า" },
+  { id: "convert", title: "แปลงไฟล์", summary: "รูปภาพ ⇄ PDF" },
+  { id: "edit", title: "แต่ง PDF", summary: "ลายน้ำ เลขหน้า" },
+];
+
 export const TOOLS: Tool[] = [
-  { slug: "merge", title: "รวม PDF", summary: "รวมหลายไฟล์เป็นไฟล์เดียว เรียงลำดับได้ตามต้องการ", color: "#e11d48" },
-  { slug: "split", title: "แยก PDF", summary: "แยกทุกหน้า แบ่งตามช่วง หรือดึงเฉพาะหน้าที่ต้องการ", color: "#ea580c" },
-  { slug: "organize", title: "จัดหน้า PDF", summary: "ลากสลับลำดับหน้า ลบหน้า และหมุนทีละหน้า", color: "#059669" },
-  { slug: "rotate", title: "หมุน PDF", summary: "หมุนทั้งไฟล์หรือเฉพาะหน้าที่ตะแคง", color: "#d97706" },
-  { slug: "jpg-to-pdf", title: "รูปภาพ → PDF", summary: "แปลง JPG, PNG, WebP เป็น PDF หลายรูปในไฟล์เดียว", color: "#0284c7" },
-  { slug: "pdf-to-jpg", title: "PDF → รูปภาพ", summary: "แปลงแต่ละหน้าเป็น JPG หรือ PNG ความละเอียดสูง", color: "#7c3aed" },
-  { slug: "watermark", title: "ใส่ลายน้ำ", summary: "ใส่ข้อความภาษาไทยหรือโลโก้ ปรับความจาง มุม ตำแหน่ง", color: "#4f46e5" },
-  { slug: "page-numbers", title: "ใส่เลขหน้า", summary: "เลือกตำแหน่ง รูปแบบ และหน้าที่เริ่มนับได้", color: "#0d9488" },
+  { slug: "merge", title: "รวม PDF", summary: "รวมหลายไฟล์เป็นไฟล์เดียว เรียงลำดับได้ตามต้องการ", color: "#e11d48", category: "organize" },
+  { slug: "split", title: "แยก PDF", summary: "แยกทุกหน้า แบ่งตามช่วง หรือดึงเฉพาะหน้าที่ต้องการ", color: "#ea580c", category: "organize" },
+  { slug: "organize", title: "จัดหน้า PDF", summary: "สลับลำดับหน้า ลบหน้า และหมุนทีละหน้า", color: "#059669", category: "organize" },
+  { slug: "rotate", title: "หมุน PDF", summary: "หมุนทั้งไฟล์หรือเฉพาะหน้าที่ตะแคง", color: "#d97706", category: "organize" },
+  { slug: "jpg-to-pdf", title: "รูปภาพ → PDF", summary: "แปลง JPG, PNG, WebP เป็น PDF หลายรูปในไฟล์เดียว", color: "#0284c7", category: "convert" },
+  { slug: "pdf-to-jpg", title: "PDF → รูปภาพ", summary: "แปลงแต่ละหน้าเป็น JPG หรือ PNG ความละเอียดสูง", color: "#7c3aed", category: "convert" },
+  { slug: "watermark", title: "ใส่ลายน้ำ", summary: "ใส่ข้อความภาษาไทยหรือโลโก้ ปรับความจาง มุม ตำแหน่ง", color: "#4f46e5", category: "edit" },
+  { slug: "page-numbers", title: "ใส่เลขหน้า", summary: "เลือกตำแหน่ง รูปแบบ และหน้าที่เริ่มนับได้", color: "#0d9488", category: "edit" },
 ];
 
 /** เครื่องมือที่ต้องใช้เซิร์ฟเวอร์ — จะมาในเฟสถัดไป */

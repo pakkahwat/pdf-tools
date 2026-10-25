@@ -14,18 +14,18 @@ export function PageThumb({
   className?: string;
 }) {
   return (
-    <div className={`thumb-bg relative grid aspect-square place-items-center overflow-hidden rounded-xl ${className}`}>
+    <div className={`relative grid aspect-square place-items-center overflow-hidden rounded-xl bg-thumb ${className}`}>
       {src ? (
         // วางแบบ absolute + margin auto: ขนาดย่อตามช่องโดยคงสัดส่วนหน้า (max-h แบบ % ใช้กับ grid ที่สูงตาม aspect-ratio ไม่ได้)
         <img
           src={src}
           alt={alt}
           draggable={false}
-          className="absolute inset-0 m-auto max-h-[calc(100%-16px)] max-w-[calc(100%-16px)] shadow-md transition-transform duration-200"
+          className="absolute inset-0 m-auto max-h-[calc(100%-20px)] max-w-[calc(100%-20px)] rounded-[3px] shadow-[0_1px_3px_rgb(0_0_0/0.18),0_4px_12px_-4px_rgb(0_0_0/0.18)] transition-transform duration-300 ease-out"
           style={{ transform: rotate ? `rotate(${rotate}deg)` : undefined }}
         />
       ) : src === "" ? (
-        <span className="text-xs text-muted">แสดงตัวอย่างไม่ได้</span>
+        <span className="px-2 text-center text-sm text-muted">แสดงตัวอย่างไม่ได้</span>
       ) : (
         <Spinner className="h-5 w-5 text-muted" />
       )}

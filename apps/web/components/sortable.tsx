@@ -1,6 +1,7 @@
 "use client";
 
-// รายการที่ลากสลับลำดับได้ (เมาส์ นิ้ว และคีย์บอร์ด) — บนมือถือต้องกดค้างเล็กน้อยก่อนลาก เพื่อให้ยังเลื่อนหน้าจอได้
+// รายการที่สลับลำดับได้ 3 ทาง: ลาก (เมาส์/นิ้ว — มือถือกดค้างก่อนลาก), คีย์บอร์ด, และปุ่มลูกศรบนการ์ด
+// (ปุ่มลูกศรสำหรับคนที่ลากไม่ถนัด — WCAG 2.2 ต้องมีทางเลือกแทนการลาก)
 import { useId } from "react";
 import {
   closestCenter,
@@ -43,7 +44,8 @@ export function SortableList<T extends { id: string }>({
   className?: string;
   /** ชื่อรายการสำหรับโปรแกรมอ่านหน้าจอ */
   itemLabel: (item: T, index: number) => string;
-  children: (item: T, index: number) => React.ReactNode;
+  /** move(to) = ย้ายรายการนี้ไปตำแหน่ง to (ใช้กับปุ่มลูกศร) */
+  children: (item: T, index: number, move: (to: number) => void) => React.ReactNode;
 }) {
   const id = useId();
   const sensors = useSensors(
@@ -85,7 +87,9 @@ export function SortableList<T extends { id: string }>({
         <ul className={className}>
           {items.map((item, index) => (
             <SortableItem key={item.id} id={item.id} label={itemLabel(item, index)}>
-              {children(item, index)}
+              {children(item, index, (to) => {
+                if (to >= 0 && to < items.length && to !== index) onChange(arrayMove(items, index, to));
+              })}
             </SortableItem>
           ))}
         </ul>
@@ -100,8 +104,8 @@ function SortableItem({ id, label, children }: { id: string; label: string; chil
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform), transition, zIndex: isDragging ? 20 : undefined }}
-      className={`relative cursor-grab touch-manipulation rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary active:cursor-grabbing ${
-        isDragging ? "opacity-90 shadow-2xl" : ""
+      className={`relative cursor-grab touch-manipulation rounded-2xl outline-none focus-visible:ring-3 focus-visible:ring-primary active:cursor-grabbing ${
+        isDragging ? "opacity-90 shadow-2xl ring-2 ring-primary" : ""
       }`}
       {...attributes}
       aria-label={label}
@@ -109,5 +113,78 @@ function SortableItem({ id, label, children }: { id: string; label: string; chil
     >
       {children}
     </li>
+  );
+}
+
+/** ปุ่มเลื่อนก่อน/หลัง ใต้การ์ด */
+export function MoveButtons({
+  index,
+  count,
+  move,
+  name,
+  children,
+}: {
+  index: number;
+  count: number;
+  move: (to: number) => void;
+  /** เช่น "ไฟล์ a.pdf" — ใช้ในชื่อปุ่มสำหรับโปรแกรมอ่านหน้าจอ */
+  name: string;
+  children?: React.ReactNode;
+}) {
+  const cls =
+    "grid h-11 w-11 shrink-0 place-items-center rounded-xl text-muted transition-colors hover:bg-primary-soft hover:text-primary disabled:opacity-25 disabled:hover:bg-transparent sm:h-9 sm:w-9";
+  return (
+    <div className="mt-1 flex items-center gap-1">
+      <button type="button" {...noDrag} className={cls} disabled={index === 0} onClick={() => move(index - 1)} aria-label={`เลื่อน${name}ไปก่อนหน้า`}>
+        <Chevron dir="left" />
+      </button>
+      <div className="min-w-0 flex-1 text-center">{children}</div>
+      <button
+        type="button"
+        {...noDrag}
+        className={cls}
+        disabled={index === count - 1}
+        onClick={() => move(index + 1)}
+        aria-label={`เลื่อน${name}ไปถัดไป`}
+      >
+        <Chevron dir="right" />
+      </button>
+    </div>
+  );
+}
+
+function Chevron({ dir }: { dir: "left" | "right" }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d={dir === "left" ? "m15 18-6-6 6-6" : "m9 18 6-6-6-6"} />
+    </svg>
+  );
+}
+
+/** ปุ่มไอคอนบนมุมภาพย่อ (ลบ/หมุน) — 40px บนมือถือ (ใหญ่กว่านี้จะบังภาพย่อบนจอแคบ) */
+export function OverlayButton({
+  label,
+  tone = "default",
+  onClick,
+  children,
+}: {
+  label: string;
+  tone?: "default" | "danger";
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      {...noDrag}
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={`grid h-10 w-10 place-items-center rounded-full border border-line bg-card/95 text-muted shadow-sm transition-colors sm:h-9 sm:w-9 ${
+        tone === "danger" ? "hover:border-danger hover:text-danger" : "hover:border-primary hover:text-primary"
+      }`}
+    >
+      {children}
+    </button>
   );
 }

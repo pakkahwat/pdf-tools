@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ActionBar } from "@/components/action-bar";
 import { Dropzone } from "@/components/dropzone";
-import { TaskStatus } from "@/components/task-status";
+import { PreviewBox } from "@/components/preview-box";
 import {
-  Button,
-  ErrorBox,
+  EmptyState,
   Field,
   inputClass,
   Panel,
@@ -13,7 +13,7 @@ import {
   Segmented,
   Slider,
   SourceBar,
-  Spinner,
+  Steps,
   ToolLayout,
 } from "@/components/ui";
 import { baseName, isPdfFile, PDF_ACCEPT, pdfBlob } from "@/lib/files";
@@ -46,6 +46,15 @@ const GRID = [
   ["ml", "mc", "mr"],
   ["bl", "bc", "br"],
 ] as const;
+
+/** สีที่ใช้บ่อย — กดเลือกได้ทันที ไม่ต้องเปิดตัวเลือกสี */
+const SWATCHES = [
+  { value: "#dc2626", name: "แดง" },
+  { value: "#6b7280", name: "เทา" },
+  { value: "#111827", name: "ดำ" },
+  { value: "#1d4ed8", name: "น้ำเงิน" },
+  { value: "#0f766e", name: "เขียว" },
+];
 
 async function markImage(s: Settings, logo: WatermarkOptions["image"] | null): Promise<WatermarkOptions["image"] | null> {
   if (s.mode === "image") return logo;
@@ -116,16 +125,19 @@ export function WatermarkTool() {
 
   if (!pdf.source) {
     return (
-      <div className="space-y-4">
-        {pdf.error && <ErrorBox message={pdf.error} />}
-        <Dropzone
-          accept={PDF_ACCEPT}
-          filter={isPdfFile}
-          onFiles={([f]) => void pdf.load(f)}
-          onRejected={() => pdf.setError("กรุณาเลือกไฟล์ PDF")}
-          buttonLabel={pdf.loading ? "กำลังเปิดไฟล์…" : "เลือกไฟล์ PDF"}
-        />
-      </div>
+      <>
+        <Steps current={1} />
+        <EmptyState error={pdf.error}>
+          <Dropzone
+            accept={PDF_ACCEPT}
+            filter={isPdfFile}
+            onFiles={([f]) => void pdf.load(f)}
+            onRejected={() => pdf.setError("ไฟล์นี้ไม่ใช่ PDF — กรุณาเลือกไฟล์ .pdf")}
+            buttonLabel="เลือกไฟล์ PDF"
+            busy={pdf.loading}
+          />
+        </EmptyState>
+      </>
     );
   }
 
@@ -133,158 +145,196 @@ export function WatermarkTool() {
   const hasMark = s.mode === "text" ? s.text.trim().length > 0 : !!logo;
 
   return (
-    <ToolLayout
-      main={
-        <>
-          <SourceBar name={source.file.name} detail={`${pageCount} หน้า · ตัวอย่างหน้าแรก`} onClear={clear} />
-          {preview.error ? (
-            <ErrorBox message={preview.error} />
-          ) : (
-            <div className="thumb-bg relative grid min-h-80 place-items-center rounded-2xl p-4">
-              {preview.url ? (
-                <img src={preview.url} alt="ตัวอย่างหน้าแรกพร้อมลายน้ำ" className="max-h-[75vh] max-w-full shadow-lg" />
-              ) : (
-                <Spinner className="h-6 w-6 text-muted" />
-              )}
-              {preview.url && preview.updating && (
-                <span className="absolute right-3 top-3 rounded-full bg-card/90 p-1.5 text-muted shadow">
-                  <Spinner className="h-4 w-4" />
-                </span>
-              )}
-            </div>
-          )}
-        </>
-      }
-      side={
-        <>
-          <Panel className="space-y-5">
-            <Segmented
-              label="ลายน้ำแบบ"
-              value={s.mode}
-              options={[
-                { value: "text", label: "ข้อความ" },
-                { value: "image", label: "รูป/โลโก้" },
-              ]}
-              onChange={(v) => set("mode", v)}
+    <>
+      <Steps current={task.state.status === "done" ? 3 : 2} />
+      <ToolLayout
+        top={<SourceBar name={source.file.name} detail={`${pageCount} หน้า · ตัวอย่างหน้าแรก`} onClear={clear} />}
+        main={
+          <>
+            <PreviewBox
+              url={preview.url}
+              updating={preview.updating}
+              error={preview.error}
+              alt="ตัวอย่างหน้าแรกพร้อมลายน้ำ"
             />
-            {s.mode === "text" ? (
-              <>
-                <Field label="ข้อความ">
-                  <input className={inputClass} value={s.text} onChange={(e) => set("text", e.target.value)} />
-                </Field>
-                <div className="flex items-end gap-3">
-                  <div className="flex-1">
-                    <Segmented
-                      label="ฟอนต์"
-                      value={s.font}
-                      options={[
-                        { value: "kanit", label: "Kanit" },
-                        { value: "sarabun", label: "Sarabun" },
-                      ]}
-                      onChange={(v) => set("font", v)}
-                    />
+          </>
+        }
+        side={
+          <>
+            <Panel title="ลายน้ำ">
+              <Segmented
+                label="ใช้เป็น"
+                value={s.mode}
+                options={[
+                  { value: "text", label: "ข้อความ" },
+                  { value: "image", label: "รูป/โลโก้" },
+                ]}
+                onChange={(v) => set("mode", v)}
+              />
+              {s.mode === "text" ? (
+                <>
+                  <Field label="ข้อความ">
+                    <input className={inputClass} value={s.text} onChange={(e) => set("text", e.target.value)} />
+                  </Field>
+                  <Segmented
+                    label="ฟอนต์"
+                    value={s.font}
+                    options={[
+                      { value: "kanit", label: "Kanit" },
+                      { value: "sarabun", label: "Sarabun" },
+                    ]}
+                    onChange={(v) => set("font", v)}
+                  />
+                  <Segmented
+                    label="น้ำหนักตัวอักษร"
+                    value={s.bold ? "bold" : "normal"}
+                    options={[
+                      { value: "normal", label: "ปกติ" },
+                      { value: "bold", label: "หนา" },
+                    ]}
+                    onChange={(v) => set("bold", v === "bold")}
+                  />
+                  <div>
+                    <div className="mb-2 text-sm font-medium">สี</div>
+                    <div role="radiogroup" aria-label="สี" className="flex flex-wrap items-center gap-2">
+                      {SWATCHES.map((c) => (
+                        <button
+                          key={c.value}
+                          type="button"
+                          role="radio"
+                          aria-checked={s.color === c.value}
+                          aria-label={c.name}
+                          title={c.name}
+                          onClick={() => set("color", c.value)}
+                          className={`grid h-11 w-11 place-items-center rounded-full border-2 transition-colors ${
+                            s.color === c.value ? "border-fg" : "border-transparent hover:border-line"
+                          }`}
+                        >
+                          <span className="h-7 w-7 rounded-full" style={{ backgroundColor: c.value }} />
+                        </button>
+                      ))}
+                      <label className="relative grid h-11 w-11 place-items-center rounded-full border-2 border-dashed border-line" title="สีอื่น">
+                        <span className="sr-only">สีอื่น</span>
+                        <input
+                          type="color"
+                          value={s.color}
+                          onChange={(e) => set("color", e.target.value)}
+                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        />
+                        <svg viewBox="0 0 24 24" className="h-5 w-5 text-muted" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+                          <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                        </svg>
+                      </label>
+                    </div>
                   </div>
-                  <label className="grid h-10 w-12 cursor-pointer place-items-center rounded-lg border border-line" title="สี">
-                    <span className="sr-only">สี</span>
-                    <input
-                      type="color"
-                      value={s.color}
-                      onChange={(e) => set("color", e.target.value)}
-                      className="h-7 w-8 cursor-pointer border-0 bg-transparent p-0"
-                    />
-                  </label>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  {logo && <p className="truncate text-sm text-muted">ใช้รูป: {logo.name}</p>}
+                  <Dropzone
+                    compact
+                    accept="image/png,image/jpeg"
+                    filter={isImageFile}
+                    onFiles={async ([f]) => {
+                      setLogoError(null);
+                      try {
+                        const image = await prepareImage(f);
+                        task.reset();
+                        setLogo({ name: f.name, image });
+                      } catch (e) {
+                        setLogoError((e as Error).message);
+                      }
+                    }}
+                    onRejected={() => setLogoError("รองรับรูป PNG หรือ JPG")}
+                    buttonLabel={logo ? "เปลี่ยนรูป" : "เลือกรูปโลโก้"}
+                  />
+                  <p className="text-sm text-muted">รูป PNG พื้นหลังโปร่งใสจะดูสวยที่สุด</p>
+                  {logoError && (
+                    <p role="alert" className="text-sm text-danger">
+                      {logoError}
+                    </p>
+                  )}
                 </div>
-                <Segmented
-                  label="น้ำหนักตัวอักษร"
-                  value={s.bold ? "bold" : "normal"}
-                  options={[
-                    { value: "normal", label: "ปกติ" },
-                    { value: "bold", label: "หนา" },
-                  ]}
-                  onChange={(v) => set("bold", v === "bold")}
-                />
-              </>
-            ) : (
-              <div className="space-y-2">
-                {logo && <p className="truncate text-sm text-muted">ใช้รูป: {logo.name}</p>}
-                <Dropzone
-                  compact
-                  accept="image/png,image/jpeg"
-                  filter={isImageFile}
-                  onFiles={async ([f]) => {
-                    setLogoError(null);
-                    try {
-                      const image = await prepareImage(f);
+              )}
+            </Panel>
+
+            <Panel title="ขนาดและตำแหน่ง">
+              <Slider label="ขนาด (เทียบความกว้างหน้า)" value={s.size} min={10} max={100} unit="%" onChange={(v) => set("size", v)} />
+              <Slider label="ความเข้ม" value={s.opacity} min={5} max={100} step={5} unit="%" onChange={(v) => set("opacity", v)} />
+              <Segmented
+                label="มุมเอียง"
+                value={s.rotate}
+                options={[
+                  { value: 0, label: "0°" },
+                  { value: 45, label: "45°" },
+                  { value: 90, label: "90°" },
+                  { value: -45, label: "-45°" },
+                ]}
+                onChange={(v) => set("rotate", v)}
+              />
+              <Segmented
+                label="การวาง"
+                value={s.layout}
+                options={[
+                  { value: "single", label: "ตำแหน่งเดียว" },
+                  { value: "tile", label: "ซ้ำทั่วหน้า" },
+                ]}
+                onChange={(v) => set("layout", v)}
+              />
+              {s.layout === "single" && (
+                <PositionPicker label="ตำแหน่ง" value={s.position} rows={GRID} onChange={(v) => set("position", v)} />
+              )}
+            </Panel>
+
+            <Panel title="หน้าที่จะใส่">
+              <Segmented
+                label="ใส่ที่หน้า"
+                value={scope}
+                options={[
+                  { value: "all", label: "ทุกหน้า" },
+                  { value: "some", label: "เลือกหน้า" },
+                ]}
+                onChange={(v) => {
+                  task.reset();
+                  setScope(v);
+                }}
+              />
+              {scope === "some" && (
+                <Field label="หน้า" hint="เช่น 1, 3, 5-7">
+                  <input
+                    className={inputClass}
+                    value={pagesText}
+                    placeholder="1, 3, 5-7"
+                    inputMode="numeric"
+                    aria-invalid={!!pages.error && !!pagesText.trim()}
+                    onChange={(e) => {
                       task.reset();
-                      setLogo({ name: f.name, image });
-                    } catch (e) {
-                      setLogoError((e as Error).message);
-                    }
-                  }}
-                  onRejected={() => setLogoError("รองรับรูป PNG หรือ JPG")}
-                  buttonLabel={logo ? "เปลี่ยนรูป" : "เลือกรูป (PNG พื้นใสจะสวยที่สุด)"}
-                />
-                {logoError && <p className="text-sm text-danger">{logoError}</p>}
-              </div>
-            )}
-            <Slider label="ขนาด (เทียบความกว้างหน้า)" value={s.size} min={10} max={100} unit="%" onChange={(v) => set("size", v)} />
-            <Slider label="ความเข้ม" value={s.opacity} min={5} max={100} step={5} unit="%" onChange={(v) => set("opacity", v)} />
-            <Segmented
-              label="มุมเอียง"
-              value={s.rotate}
-              options={[
-                { value: 0, label: "0°" },
-                { value: 45, label: "45°" },
-                { value: 90, label: "90°" },
-                { value: -45, label: "-45°" },
-              ]}
-              onChange={(v) => set("rotate", v)}
-            />
-            <Segmented
-              label="การวาง"
-              value={s.layout}
-              options={[
-                { value: "single", label: "ตำแหน่งเดียว" },
-                { value: "tile", label: "ซ้ำทั่วหน้า" },
-              ]}
-              onChange={(v) => set("layout", v)}
-            />
-            {s.layout === "single" && (
-              <PositionPicker label="ตำแหน่ง" value={s.position} rows={GRID} onChange={(v) => set("position", v)} />
-            )}
-            <Segmented
-              label="ใส่ที่หน้า"
-              value={scope}
-              options={[
-                { value: "all", label: "ทุกหน้า" },
-                { value: "some", label: "เลือกหน้า" },
-              ]}
-              onChange={(v) => {
-                task.reset();
-                setScope(v);
-              }}
-            />
-            {scope === "some" && (
-              <Field label="หน้า" hint="เช่น 1, 3, 5-7">
-                <input
-                  className={inputClass}
-                  value={pagesText}
-                  placeholder="1, 3, 5-7"
-                  inputMode="numeric"
-                  onChange={(e) => {
-                    task.reset();
-                    setPagesText(e.target.value);
-                  }}
-                />
-              </Field>
-            )}
-            {scope === "some" && pages.error && pagesText.trim() && <p className="text-sm text-danger">{pages.error}</p>}
-            <Button
-              variant="primary"
-              size="lg"
-              className="w-full"
-              disabled={!hasMark || !!pages.error || !!preview.error || task.state.status === "working"}
-              onClick={() =>
+                      setPagesText(e.target.value);
+                    }}
+                  />
+                </Field>
+              )}
+              {scope === "some" && pages.error && pagesText.trim() && (
+                <p role="alert" className="text-sm text-danger">
+                  {pages.error}
+                </p>
+              )}
+            </Panel>
+
+            <ActionBar
+              task={task}
+              label="ใส่ลายน้ำ"
+              disabled={!hasMark || !!pages.error || !!preview.error}
+              hint={
+                !hasMark
+                  ? s.mode === "text"
+                    ? "พิมพ์ข้อความลายน้ำก่อน"
+                    : "เลือกรูปโลโก้ก่อน"
+                  : pages.error && scope === "some"
+                    ? pages.error
+                    : undefined
+              }
+              onRun={() =>
                 task.run(async (progress) => {
                   progress("กำลังใส่ลายน้ำ…");
                   const image = await markImage(s, logo?.image ?? null);
@@ -293,13 +343,11 @@ export function WatermarkTool() {
                   return { blob: pdfBlob(bytes), name: `${baseName(source.file.name)}-watermarked.pdf` };
                 })
               }
-            >
-              ใส่ลายน้ำ
-            </Button>
-          </Panel>
-          <TaskStatus task={task} onStartOver={clear} />
-        </>
-      }
-    />
+              onStartOver={clear}
+            />
+          </>
+        }
+      />
+    </>
   );
 }
