@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 
 type ButtonProps = React.ComponentProps<"button"> & {
   /** cta = ปุ่มลงมือทำหลัก (มีได้ปุ่มเดียวต่อหน้าจอ) */
@@ -79,6 +79,162 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 
 export const inputClass =
   "min-h-12 w-full rounded-xl border border-line bg-card px-3.5 text-base outline-none transition-colors placeholder:text-muted/70 focus:border-primary focus:ring-3 focus:ring-primary/25";
+
+/**
+ * ช่องรหัสผ่าน + ปุ่มแสดง/ซ่อน (บนมือถือพิมพ์ผิดง่าย ให้กดดูได้) — error แสดงใต้ช่องและผูกกับช่องด้วย aria-describedby
+ * ใช้ label แยก (ไม่ห่อทั้งก้อน) ไม่งั้นชื่อปุ่มแสดงรหัสจะติดไปเป็นชื่อของช่อง
+ */
+export function PasswordField({
+  label,
+  value,
+  onChange,
+  hint,
+  error,
+  autoComplete = "current-password",
+  autoFocus = false,
+  onEnter,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  hint?: string;
+  error?: string | null;
+  autoComplete?: "current-password" | "new-password";
+  autoFocus?: boolean;
+  onEnter?: () => void;
+}) {
+  const id = useId();
+  const [show, setShow] = useState(false);
+  const note = error ?? hint;
+  return (
+    <div>
+      <label htmlFor={id} className="mb-2 block text-sm font-medium">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          id={id}
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && onEnter) {
+              e.preventDefault();
+              onEnter();
+            }
+          }}
+          autoComplete={autoComplete}
+          autoFocus={autoFocus}
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={note ? `${id}-note` : undefined}
+          className={`${inputClass} pr-12 ${error ? "border-danger" : ""}`}
+        />
+        <button
+          type="button"
+          onClick={() => setShow((s) => !s)}
+          aria-label={show ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+          aria-pressed={show}
+          className="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-xl text-muted transition-colors hover:text-primary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+        >
+          <EyeIcon off={show} />
+        </button>
+      </div>
+      {note && (
+        <p id={`${id}-note`} className={`mt-1.5 text-sm ${error ? "text-danger" : "text-muted"}`}>
+          {note}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function EyeIcon({ off }: { off: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
+      <circle cx="12" cy="12" r="3" />
+      {off && <path d="M4 4l16 16" />}
+    </svg>
+  );
+}
+
+/** ช่องติ๊ก ขนาดกดง่ายบนมือถือ (ทั้งแถวกดได้) */
+export function Checkbox({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-1 hover:bg-primary-soft/60">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="h-5 w-5 shrink-0 cursor-pointer accent-[var(--primary)]"
+      />
+      <span>{label}</span>
+    </label>
+  );
+}
+
+/** ตัวเลือกแบบการ์ดเรียงลง (radio) — มีคำอธิบายใต้ชื่อ ใช้เมื่อแต่ละตัวเลือกต้องอธิบายผลลัพธ์ (ชื่อกลุ่มใช้หัวข้อของ Panel ที่ครอบ) */
+export function ChoiceCards<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  /** ชื่อกลุ่มสำหรับโปรแกรมอ่านหน้าจอ */
+  label: string;
+  value: T;
+  options: readonly { value: T; label: string; description: string; badge?: string }[];
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div>
+      <div role="radiogroup" aria-label={label} className="space-y-2">
+        {options.map((o) => {
+          const active = o.value === value;
+          return (
+            <button
+              key={o.value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => onChange(o.value)}
+              className={`flex w-full items-start gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                active ? "border-primary bg-primary-soft" : "border-line bg-card hover:border-primary"
+              }`}
+            >
+              <span
+                aria-hidden
+                className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${active ? "border-primary" : "border-line"}`}
+              >
+                {active && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
+              </span>
+              <span className="min-w-0">
+                <span className={`flex items-center gap-2 ${active ? "font-semibold text-primary" : "font-medium"}`}>
+                  {o.label}
+                  {o.badge && (
+                    <span className="rounded-full bg-cta/10 px-2 py-0.5 text-xs font-semibold text-cta">{o.badge}</span>
+                  )}
+                </span>
+                <span className="mt-0.5 block text-sm text-muted">{o.description}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export function Slider({
   label,

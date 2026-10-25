@@ -40,7 +40,7 @@ describe("mergePdfs", () => {
     doc.context.trailerInfo.Encrypt = doc.context.obj({ Filter: PDFName.of("Standard") });
     const locked = await doc.save();
     await expect(mergePdfs([{ name: "lock.pdf", bytes: locked }, { name: "x.pdf", bytes: locked }])).rejects.toThrow(
-      /ถูกล็อกหรือเข้ารหัส/,
+      /ถูกล็อกไว้ — ปลดล็อกด้วยเครื่องมือ “ปลดรหัส PDF”/,
     );
   });
 });

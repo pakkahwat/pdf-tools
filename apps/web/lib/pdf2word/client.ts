@@ -62,7 +62,7 @@ function getWorker(): Worker {
 }
 
 function friendlyError(message: string): string {
-  if (message === "ENCRYPTED") return "ไฟล์นี้ถูกล็อกด้วยรหัสผ่าน — ยังแปลงไม่ได้ในเวอร์ชันนี้";
+  if (message === "ENCRYPTED") return "ไฟล์นี้ถูกล็อกด้วยรหัสผ่าน — ปลดรหัสด้วยเครื่องมือ “ปลดรหัส PDF” ก่อน";
   if (/fetch|network|Failed to load/i.test(message)) {
     return "โหลดตัวแปลงไม่สำเร็จ — ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่ (ต้องโหลดครั้งแรกครั้งเดียว)";
   }

@@ -5,7 +5,7 @@
   "type": "module",
   "description": "เครื่องมือ PDF ที่ทำงานในเบราว์เซอร์ (รวม แยก หมุน จัดหน้า แปลงรูป ลายน้ำ เลขหน้า) — ไฟล์ไม่ออกจากเครื่องผู้ใช้",
   "scripts": {
-    "postinstall": "node scripts/copy-pdfjs.mjs",
+    "postinstall": "node scripts/copy-vendor.mjs",
     "dev": "next dev --port 3001",
     "build": "next build",
     "start": "next start --port 3001",
@@ -19,6 +19,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "fflate": "^0.8.3",
+    "mupdf": "^1.28.1",
     "next": "16.4.2",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.4.299",

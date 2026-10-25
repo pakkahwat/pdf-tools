@@ -1,5 +1,36 @@
 import { Spinner } from "./ui";
 
+/** ภาพย่อแค่บางหน้าให้ผู้ใช้เห็นว่าเลือกไฟล์ถูก — สำหรับเครื่องมือที่ทำกับทั้งไฟล์ ไม่ต้องเลือกหน้า */
+export function ThumbPreview({
+  thumbs,
+  pageCount,
+  max = 8,
+  note = "ทำกับทั้งไฟล์",
+}: {
+  thumbs: (string | null)[];
+  pageCount: number;
+  max?: number;
+  note?: string;
+}) {
+  return (
+    <>
+      <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+        {thumbs.slice(0, max).map((thumb, i) => (
+          <li key={i}>
+            <PageThumb src={thumb} alt={`หน้า ${i + 1}`} />
+            <span className="mt-1 block px-1 text-sm text-muted">หน้า {i + 1}</span>
+          </li>
+        ))}
+      </ul>
+      {pageCount > max && (
+        <p className="mt-3 text-sm text-muted">
+          และอีก {pageCount - max} หน้า — {note}
+        </p>
+      )}
+    </>
+  );
+}
+
 /** ภาพย่อหนึ่งหน้า: ช่องสี่เหลี่ยมจัตุรัสเพื่อให้หมุน 90° แล้วภาพยังพอดีช่อง */
 export function PageThumb({
   src,

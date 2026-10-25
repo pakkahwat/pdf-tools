@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { strFromU8, unzipSync } from "fflate";
-import { inspectPdf, makePdf, makePng } from "../test-utils/fixtures";
+import { inspectPdf, makePdf, makePhotoPdf, makePng } from "../test-utils/fixtures";
 
 type Upload = { name: string; mimeType: string; buffer: Buffer };
 
@@ -28,10 +28,10 @@ async function download(page: Page) {
 
 const magic = (b: Uint8Array) => Array.from(b.slice(0, 4));
 
-test("หน้าแรกแสดงเครื่องมือทั้ง 9 และกดเข้าใช้งานได้", async ({ page }) => {
+test("หน้าแรกแสดงเครื่องมือทั้ง 12 และกดเข้าใช้งานได้", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("PDF");
-  await expect(page.locator("#tools").getByRole("link")).toHaveCount(9);
+  await expect(page.locator("#tools").getByRole("link")).toHaveCount(12);
   await page.locator("#tools").getByRole("link", { name: /รวม PDF/ }).click();
   await expect(page).toHaveURL(/\/merge$/);
   await expect(page.getByRole("list", { name: "ขั้นตอนการใช้งาน" })).toBeVisible();
@@ -131,6 +131,44 @@ test("PDF → Word ได้ไฟล์ DOCX ที่มีข้อควา�
   const xml = strFromU8(unzipSync(out.bytes)["word/document.xml"]);
   expect(xml).toContain("Hello 1");
   expect(xml).toContain("Hello 2");
+});
+
+test("ใส่รหัสแล้วปลดรหัสด้วยรหัสเดิม (รหัสผิดต้องแจ้ง)", async ({ page }) => {
+  await page.goto("/protect");
+  await upload(page, [await pdf("doc.pdf", 2)]);
+  await page.getByLabel("รหัสผ่าน", { exact: true }).fill("ลับ 123");
+  await page.getByLabel("พิมพ์รหัสผ่านอีกครั้ง").fill("ลับ 123");
+  await page.getByRole("checkbox", { name: "พิมพ์", exact: true }).uncheck();
+  await runTool(page, "ใส่รหัส PDF");
+  const locked = await download(page);
+  expect(locked.name).toBe("doc-protected.pdf");
+  await expect(inspectPdf(locked.bytes)).rejects.toThrow(/encrypted/);
+
+  await page.goto("/unlock");
+  await upload(page, [{ name: locked.name, mimeType: "application/pdf", buffer: Buffer.from(locked.bytes) }]);
+  await expect(page.getByText("ไฟล์นี้ต้องใช้รหัสผ่านเปิด")).toBeVisible();
+  const password = page.getByLabel("รหัสผ่าน", { exact: true });
+  await password.fill("ผิด");
+  await password.press("Enter");
+  await expect(page.getByText(/รหัสผ่านไม่ถูกต้อง/)).toBeVisible();
+  await password.fill("ลับ 123");
+  await runTool(page, "ปลดรหัส PDF");
+  const out = await download(page);
+  expect(out.name).toBe("doc-protected-unlocked.pdf");
+  expect(await inspectPdf(out.bytes)).toHaveLength(2);
+});
+
+test("บีบอัด PDF ที่มีรูปใหญ่ ได้ไฟล์เล็กลงมาก", async ({ page }) => {
+  await page.goto("/compress");
+  const src = await makePhotoPdf();
+  await upload(page, [{ name: "scan.pdf", mimeType: "application/pdf", buffer: Buffer.from(src) }]);
+  await page.getByRole("radio", { name: /บีบมาก/ }).click();
+  await runTool(page, "บีบอัด PDF");
+  await expect(page.getByText(/เล็กลง \d+%/)).toBeVisible();
+  const out = await download(page);
+  expect(out.name).toBe("scan-compressed.pdf");
+  expect(out.bytes.length).toBeLessThan(src.length / 5);
+  expect(await inspectPdf(out.bytes)).toHaveLength(1);
 });
 
 test("ใส่ลายน้ำข้อความไทย", async ({ page }) => {

@@ -17,12 +17,14 @@ export async function makePdf(
   return doc.save();
 }
 
-/** PNG สีเดียว RGB 8 บิต */
-export function makePng(width: number, height: number, color: [number, number, number] = [37, 99, 235]): Uint8Array {
+type Rgb = [number, number, number];
+
+/** PNG RGB 8 บิต — สีเดียว หรือกำหนดสีทีละพิกเซล */
+export function makePng(width: number, height: number, color: Rgb | ((x: number, y: number) => Rgb) = [37, 99, 235]): Uint8Array {
   const stride = width * 3 + 1;
   const raw = Buffer.alloc(stride * height);
   for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) raw.set(color, y * stride + 1 + x * 3);
+    for (let x = 0; x < width; x++) raw.set(typeof color === "function" ? color(x, y) : color, y * stride + 1 + x * 3);
   }
   const chunk = (type: string, data: Buffer) => {
     const len = Buffer.alloc(4);
@@ -45,6 +47,23 @@ export function makePng(width: number, height: number, color: [number, number, n
       chunk("IEND", Buffer.alloc(0)),
     ]),
   );
+}
+
+/**
+ * PDF หน้า A4 ที่มีรูปคล้ายรูปถ่าย (ไล่สี + noise) เต็มหน้า เก็บแบบ PNG ไม่บีบ — ไฟล์ใหญ่แบบที่ได้จากสแกนเนอร์/แอปบางตัว
+ * ใช้ทดสอบการบีบอัด
+ */
+export async function makePhotoPdf(width = 1800, height = 2400): Promise<Uint8Array> {
+  let seed = 7;
+  const png = makePng(width, height, (x, y) => {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    const n = (seed >> 16) & 15;
+    return [(x * 255) / width + n, (y * 255) / height + n, 128 + 60 * Math.sin(x / 40) + n];
+  });
+  const doc = await PDFDocument.create();
+  const image = await doc.embedPng(png);
+  doc.addPage([595, 842]).drawImage(image, { x: 0, y: 0, width: 595, height: 842 });
+  return doc.save();
 }
 
 export type PageInfo = { width: number; height: number; rotation: number; images: number; fonts: number };

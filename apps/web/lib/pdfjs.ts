@@ -5,7 +5,7 @@ let lib: Promise<typeof import("pdfjs-dist")> | null = null;
 
 function pdfjs() {
   lib ??= import("pdfjs-dist").then((m) => {
-    // ไฟล์เหล่านี้ถูกคัดลอกไปที่ public/pdfjs ตอน npm install (scripts/copy-pdfjs.mjs)
+    // ไฟล์เหล่านี้ถูกคัดลอกไปที่ public/pdfjs ตอน npm install (scripts/copy-vendor.mjs)
     m.GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.min.mjs";
     return m;
   });
@@ -25,7 +25,7 @@ export async function openPdf(bytes: Uint8Array): Promise<PDFDocumentProxy> {
     }).promise;
   } catch (e) {
     if (e instanceof Error && e.name === "PasswordException") {
-      throw new Error("ไฟล์นี้ต้องใส่รหัสผ่านก่อนเปิด — ยังไม่รองรับในเวอร์ชันนี้");
+      throw new Error("ไฟล์นี้มีรหัสผ่าน — ปลดรหัสด้วยเครื่องมือ “ปลดรหัส PDF” ก่อน แล้วค่อยใช้ไฟล์ที่ได้");
     }
     throw new Error("เปิดไฟล์ไม่ได้ — ไฟล์อาจเสียหรือไม่ใช่ PDF");
   }

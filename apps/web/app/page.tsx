@@ -8,9 +8,9 @@ const PROMISES = [
   { title: "ใช้ได้ทุกเครื่อง", text: "คอมพิวเตอร์ แท็บเล็ต มือถือ", icon: "device" },
 ] as const;
 
-// ตาม CATEGORIES: จัดระเบียบ 4 เครื่องมือ / แปลงไฟล์ 3 / แต่ง PDF 2 (ตาราง 5 คอลัมน์บนจอใหญ่)
-const SECTION_SPAN = ["lg:col-span-5", "lg:col-span-3", "lg:col-span-2"];
-const LIST_COLS = ["lg:grid-cols-4", "lg:grid-cols-3", "lg:grid-cols-2"];
+// ตาม CATEGORIES: จัดระเบียบ 5 เครื่องมือ / แปลงไฟล์ 3 / แต่ง PDF 2 / ความปลอดภัย 2 (ตาราง 5 คอลัมน์บนจอใหญ่)
+const SECTION_SPAN = ["lg:col-span-5", "lg:col-span-3", "lg:col-span-2", "lg:col-span-5"];
+const LIST_COLS = ["lg:grid-cols-5", "lg:grid-cols-3", "lg:grid-cols-2", "lg:grid-cols-5"];
 
 const HOW_TO = [
   { title: "เลือกเครื่องมือ", text: "กดเครื่องมือที่ต้องการด้านบน" },
@@ -26,7 +26,7 @@ export default function Home() {
           จัดการไฟล์ PDF <span className="text-primary">ง่าย ๆ</span> ในเบราว์เซอร์
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base text-muted sm:text-lg">
-          รวม แยก หมุน จัดหน้า แปลงรูปภาพ แปลงเป็น Word ใส่ลายน้ำและเลขหน้า — เลือกเครื่องมือด้านล่างได้เลย
+          รวม แยก หมุน บีบอัด แปลงเป็น Word ใส่ลายน้ำ ใส่/ปลดรหัสผ่าน — เลือกเครื่องมือด้านล่างได้เลย
         </p>
         <ul className="mt-8 grid gap-3 text-left sm:grid-cols-3">
           {PROMISES.map((p) => (
@@ -43,7 +43,7 @@ export default function Home() {
         </ul>
       </section>
 
-      {/* จอใหญ่: หมวดแรก (4 เครื่องมือ) เต็มแถว แปลงไฟล์ (3) กับแต่ง PDF (2) วางคู่กันในแถวเดียว — การ์ดกว้างเท่ากัน ไม่มีช่องโหว่ */}
+      {/* จอใหญ่: การ์ดกว้างเท่ากันทุกแถว (1 ใน 5) — หมวดแรกเต็มแถว แปลงไฟล์ (3) กับแต่ง PDF (2) วางคู่กันในแถวเดียว */}
       <div id="tools" className="grid scroll-mt-24 gap-10 lg:grid-cols-5 lg:gap-x-3">
         {CATEGORIES.map((cat, k) => (
           <section key={cat.id} aria-labelledby={`cat-${cat.id}`} className={SECTION_SPAN[k] ?? ""}>

@@ -2,7 +2,7 @@
 
 import { ActionBar } from "@/components/action-bar";
 import { Dropzone } from "@/components/dropzone";
-import { PageThumb } from "@/components/page-thumb";
+import { ThumbPreview } from "@/components/page-thumb";
 import { EmptyState, Panel, SourceBar, Steps, ToolLayout } from "@/components/ui";
 import { baseName, isPdfFile, PDF_ACCEPT } from "@/lib/files";
 import { pdfToWord, progressText } from "@/lib/pdf2word/client";
@@ -10,8 +10,6 @@ import { usePdfSource } from "@/lib/use-pdf-source";
 import { useTask } from "@/lib/use-task";
 
 const DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-/** แสดงภาพย่อแค่บางหน้า — แปลงทั้งไฟล์อยู่แล้ว ไม่ต้องให้ผู้ใช้เลือกหน้า */
-const PREVIEW_PAGES = 8;
 
 export function PdfToWordTool() {
   const pdf = usePdfSource({ thumbSize: 200 });
@@ -42,28 +40,13 @@ export function PdfToWordTool() {
   }
 
   const { source } = pdf;
-  const shown = pdf.thumbs.slice(0, PREVIEW_PAGES);
 
   return (
     <>
       <Steps current={task.state.status === "done" ? 3 : 2} />
       <ToolLayout
         top={<SourceBar name={source.file.name} detail={`${source.pageCount} หน้า`} onClear={clear} />}
-        main={
-          <>
-            <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-              {shown.map((thumb, i) => (
-                <li key={i}>
-                  <PageThumb src={thumb} alt={`หน้า ${i + 1}`} />
-                  <span className="mt-1 block px-1 text-sm text-muted">หน้า {i + 1}</span>
-                </li>
-              ))}
-            </ul>
-            {source.pageCount > PREVIEW_PAGES && (
-              <p className="mt-3 text-sm text-muted">และอีก {source.pageCount - PREVIEW_PAGES} หน้า — แปลงทั้งไฟล์</p>
-            )}
-          </>
-        }
+        main={<ThumbPreview thumbs={pdf.thumbs} pageCount={source.pageCount} note="แปลงทั้งไฟล์" />}
         side={
           <>
             <Panel title="ก่อนแปลง">

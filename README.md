@@ -12,11 +12,14 @@
 | แยก PDF (ตามช่วง / ดึงหน้า / ทุก N หน้า / ทุกหน้า) | `/split` | pdf-lib + fflate (zip) |
 | จัดหน้า (ลากสลับ ลบ หมุน) | `/organize` | pdf-lib + dnd-kit |
 | หมุน PDF | `/rotate` | pdf-lib |
+| บีบอัด PDF (3 ระดับ — ย่อรูปที่ละเอียดเกิน + JPEG, ไม่แตะข้อความ/ฟอนต์) | `/compress` | mupdf.js (WASM) |
 | รูปภาพ → PDF (JPG, PNG, WebP, GIF, BMP — หมุนตาม EXIF) | `/jpg-to-pdf` | pdf-lib + canvas |
 | PDF → รูปภาพ (JPG/PNG 96–300 DPI) | `/pdf-to-jpg` | pdf.js |
 | PDF → Word (แก้ไขได้ ภาษาไทยตัดบรรทัดตรง ฝังฟอนต์) | `/pdf-to-word` | pdf2docx + PyMuPDF บน Pyodide (WASM) |
 | ใส่ลายน้ำ (ข้อความไทย/โลโก้ พรีวิวจริง) | `/watermark` | canvas + pdf-lib |
 | ใส่เลขหน้า (รองรับรูปแบบภาษาไทย) | `/page-numbers` | pdf-lib / canvas |
+| ใส่รหัส PDF (AES-256 + ห้ามพิมพ์/คัดลอก/แก้ไข) | `/protect` | mupdf.js |
+| ปลดรหัส PDF (ต้องรู้รหัส — ไฟล์ที่ล็อกแค่สิทธิ์ปลดได้เลย) | `/unlock` | mupdf.js |
 
 ### PDF → Word ทำงานอย่างไร
 
@@ -36,6 +39,7 @@ pdf-tools/
 │  ├─ lib/pdf/ops.ts        งาน PDF ทั้งหมด (pdf-lib) — รันใน Web Worker ผ่าน lib/pdf/client.ts
 │  ├─ lib/pdfjs.ts          วาดหน้า PDF เป็นภาพด้วย pdf.js
 │  ├─ lib/pdf2word/         PDF → Word: คุม worker + แทรกจุดตัดคำไทย
+│  ├─ lib/mupdf/            ใส่/ปลดรหัส, บีบอัด (mupdf.js ใน Web Worker — postinstall คัดลอกไปที่ public/mupdf)
 │  ├─ public/p2w/           ตัวแปลง PDF → Word (worker, โมดูล Python, wheel, ฟอนต์ OFL)
 │  ├─ tests/                unit test (Vitest)
 │  ├─ e2e/                  E2E (Playwright) — อัปโหลดไฟล์จริง กดประมวลผล ตรวจไฟล์ที่ดาวน์โหลด
@@ -44,13 +48,13 @@ pdf-tools/
 └─ .github/                 CI (GitHub Actions) + Dependabot
 ```
 
-เฟส 2 ทำในเบราว์เซอร์ด้วย WASM ต่อ: ใส่/ปลดรหัส, บีบอัด, OCR ไทย (PaddleOCR ในเครื่อง), Word/Excel/PowerPoint → PDF
+เฟส 2 ทำในเบราว์เซอร์ด้วย WASM ต่อ: OCR ไทย (PaddleOCR ในเครื่อง), Word/Excel/PowerPoint → PDF
 
 ## พัฒนาในเครื่อง
 
 ```bash
 cd apps/web
-npm install          # postinstall คัดลอกไฟล์ pdf.js ไปที่ public/pdfjs
+npm install          # postinstall คัดลอกไฟล์ pdf.js และ mupdf.js ไปที่ public/pdfjs, public/mupdf
 npm run dev          # http://localhost:3001
 npm run lint && npm run typecheck && npm test
 npm run e2e          # ครั้งแรก: npx playwright install chromium
@@ -76,4 +80,4 @@ $env:E2E_BASE_URL = "https://pdf.devda.fyi"; npm run e2e
 
 ## License
 
-[AGPL-3.0](LICENSE) — เพราะใช้ pdf2docx และ PyMuPDF (AGPL-3.0) · ฟอนต์ใน `apps/web/public/p2w/fonts` เป็น SIL Open Font License (ไฟล์ license อยู่ใน `fonts/licenses`)
+[AGPL-3.0](LICENSE) — เพราะใช้ pdf2docx, PyMuPDF และ mupdf.js (AGPL-3.0) · ฟอนต์ใน `apps/web/public/p2w/fonts` เป็น SIL Open Font License (ไฟล์ license อยู่ใน `fonts/licenses`)

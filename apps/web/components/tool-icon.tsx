@@ -62,6 +62,24 @@ const PATHS: Record<ToolSlug | "soon", React.ReactNode> = {
       <path d="M9 10.5h6M9 14.5h6M11 8.5l-1 8M14 8.5l-1 8" />
     </>
   ),
+  compress: (
+    <>
+      <path d="M4 14h6v6M20 10h-6V4" />
+      <path d="m14 10 7-7M3 21l7-7" />
+    </>
+  ),
+  protect: (
+    <>
+      <rect x="4" y="10" width="16" height="11" rx="2" />
+      <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14.5v2.5" />
+    </>
+  ),
+  unlock: (
+    <>
+      <rect x="4" y="10" width="16" height="11" rx="2" />
+      <path d="M8 10V7a4 4 0 0 1 7.75-1.4M12 14.5v2.5" />
+    </>
+  ),
   soon: (
     <>
       <circle cx="12" cy="12" r="9" />

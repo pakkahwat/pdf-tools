@@ -57,7 +57,7 @@ async function load(bytes: Uint8Array, name?: string): Promise<PDFDocument> {
   } catch (e) {
     // error ของ pdf-lib คอมไพล์แบบ ES5 จึงใช้ instanceof EncryptedPDFError ไม่ได้ — ดูจากข้อความแทน
     if (e instanceof Error && /is encrypted/i.test(e.message)) {
-      throw new Error(`${who} ถูกล็อกหรือเข้ารหัสไว้ จึงแก้ไขในเบราว์เซอร์ไม่ได้ (เครื่องมือปลดล็อกจะมาในเวอร์ชันถัดไป)`);
+      throw new Error(`${who} ถูกล็อกไว้ — ปลดล็อกด้วยเครื่องมือ “ปลดรหัส PDF” ก่อน (ไฟล์ที่ห้ามแก้ไขปลดได้โดยไม่ต้องใช้รหัส)`);
     }
     throw new Error(`เปิด${who} ไม่ได้ — ไฟล์อาจเสียหรือไม่ใช่ PDF`);
   }

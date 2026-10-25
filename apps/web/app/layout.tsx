@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: `${SITE.name} — ${SITE.tagline}`, template: `%s · ${SITE.name}` },
   description:
-    "รวม แยก หมุน จัดหน้า แปลงรูปภาพ แปลง PDF เป็น Word ใส่ลายน้ำ และใส่เลขหน้า PDF ฟรี ประมวลผลในเบราว์เซอร์ ไม่มีการอัปโหลดไฟล์",
+    "รวม แยก หมุน จัดหน้า บีบอัด แปลงรูปภาพ แปลง PDF เป็น Word ใส่ลายน้ำ เลขหน้า ใส่/ปลดรหัสผ่าน PDF ฟรี ประมวลผลในเบราว์เซอร์ ไม่มีการอัปโหลดไฟล์",
 };
 
 export const viewport: Viewport = {

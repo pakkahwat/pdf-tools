@@ -42,6 +42,7 @@ next-env.d.ts
 
 # ไฟล์ pdf.js ที่คัดลอกตอน postinstall
 /public/pdfjs
+/public/mupdf
 
 # playwright
 /e2e/report
