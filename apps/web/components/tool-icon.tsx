@@ -43,6 +43,13 @@ const PATHS: Record<ToolSlug | "soon", React.ReactNode> = {
       <path d="m7 20 3-3 2 2 2-2 3 3" />
     </>
   ),
+  "pdf-to-word": (
+    <>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+      <path d="m8.5 11.5 1.2 5 1.8-3.6 1.8 3.6 1.2-5" />
+    </>
+  ),
   watermark: (
     <>
       <path d="M12 3s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z" />

@@ -12,6 +12,7 @@ export type ToolSlug =
   | "organize"
   | "jpg-to-pdf"
   | "pdf-to-jpg"
+  | "pdf-to-word"
   | "watermark"
   | "page-numbers";
 
@@ -27,7 +28,7 @@ export type Tool = {
 
 export const CATEGORIES: { id: ToolCategory; title: string; summary: string }[] = [
   { id: "organize", title: "จัดระเบียบ PDF", summary: "รวม แยก เรียง หมุนหน้า" },
-  { id: "convert", title: "แปลงไฟล์", summary: "รูปภาพ ⇄ PDF" },
+  { id: "convert", title: "แปลงไฟล์", summary: "รูปภาพ ⇄ PDF, PDF → Word" },
   { id: "edit", title: "แต่ง PDF", summary: "ลายน้ำ เลขหน้า" },
 ];
 
@@ -38,6 +39,7 @@ export const TOOLS: Tool[] = [
   { slug: "rotate", title: "หมุน PDF", summary: "หมุนทั้งไฟล์หรือเฉพาะหน้าที่ตะแคง", color: "#d97706", category: "organize" },
   { slug: "jpg-to-pdf", title: "รูปภาพ → PDF", summary: "แปลง JPG, PNG, WebP เป็น PDF หลายรูปในไฟล์เดียว", color: "#0284c7", category: "convert" },
   { slug: "pdf-to-jpg", title: "PDF → รูปภาพ", summary: "แปลงแต่ละหน้าเป็น JPG หรือ PNG ความละเอียดสูง", color: "#7c3aed", category: "convert" },
+  { slug: "pdf-to-word", title: "PDF → Word", summary: "แปลงเป็นไฟล์ Word ที่แก้ไขได้ หน้าตาใกล้ต้นฉบับ รองรับภาษาไทย", color: "#2563eb", category: "convert" },
   { slug: "watermark", title: "ใส่ลายน้ำ", summary: "ใส่ข้อความภาษาไทยหรือโลโก้ ปรับความจาง มุม ตำแหน่ง", color: "#4f46e5", category: "edit" },
   { slug: "page-numbers", title: "ใส่เลขหน้า", summary: "เลือกตำแหน่ง รูปแบบ และหน้าที่เริ่มนับได้", color: "#0d9488", category: "edit" },
 ];
@@ -48,7 +50,6 @@ export const UPCOMING = [
   { title: "บีบอัด PDF", summary: "ลดขนาดไฟล์สำหรับส่งอีเมล/LINE" },
   { title: "OCR อ่านข้อความไทย", summary: "ทำให้ PDF สแกนค้นหาและคัดลอกข้อความได้" },
   { title: "ใส่ / ปลดรหัสผ่าน", summary: "ล็อกไฟล์ หรือปลดล็อกไฟล์ที่รู้รหัส" },
-  { title: "PDF → Word", summary: "แปลงกลับเป็นไฟล์ที่แก้ไขได้" },
 ];
 
 export function getTool(slug: ToolSlug): Tool {

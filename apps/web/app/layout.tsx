@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: `${SITE.name} — ${SITE.tagline}`, template: `%s · ${SITE.name}` },
   description:
-    "รวม แยก หมุน จัดหน้า แปลงรูปภาพ ใส่ลายน้ำ และใส่เลขหน้า PDF ฟรี ประมวลผลในเบราว์เซอร์ ไม่มีการอัปโหลดไฟล์",
+    "รวม แยก หมุน จัดหน้า แปลงรูปภาพ แปลง PDF เป็น Word ใส่ลายน้ำ และใส่เลขหน้า PDF ฟรี ประมวลผลในเบราว์เซอร์ ไม่มีการอัปโหลดไฟล์",
 };
 
 export const viewport: Viewport = {
@@ -58,7 +58,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <ShieldIcon />
               ทุกเครื่องมือทำงานในเบราว์เซอร์ของคุณ — ไฟล์ไม่ถูกส่งขึ้นเซิร์ฟเวอร์และไม่ถูกเก็บไว้ที่ใด
             </p>
-            <p>ใช้ฟรี ไม่ต้องสมัคร ไม่มีโฆษณา</p>
+            <p>
+              ใช้ฟรี ไม่ต้องสมัคร ไม่มีโฆษณา ·{" "}
+              <a
+                href="https://github.com/pakkahwat/pdf-tools"
+                className="underline decoration-line underline-offset-4 hover:text-primary"
+              >
+                ซอร์สโค้ด (AGPL-3.0)
+              </a>
+            </p>
           </div>
         </footer>
       </body>

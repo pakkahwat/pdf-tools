@@ -8,6 +8,10 @@ const PROMISES = [
   { title: "ใช้ได้ทุกเครื่อง", text: "คอมพิวเตอร์ แท็บเล็ต มือถือ", icon: "device" },
 ] as const;
 
+// ตาม CATEGORIES: จัดระเบียบ 4 เครื่องมือ / แปลงไฟล์ 3 / แต่ง PDF 2 (ตาราง 5 คอลัมน์บนจอใหญ่)
+const SECTION_SPAN = ["lg:col-span-5", "lg:col-span-3", "lg:col-span-2"];
+const LIST_COLS = ["lg:grid-cols-4", "lg:grid-cols-3", "lg:grid-cols-2"];
+
 const HOW_TO = [
   { title: "เลือกเครื่องมือ", text: "กดเครื่องมือที่ต้องการด้านบน" },
   { title: "ใส่ไฟล์และตั้งค่า", text: "เลือกไฟล์ แล้วปรับตัวเลือกตามต้องการ" },
@@ -22,7 +26,7 @@ export default function Home() {
           จัดการไฟล์ PDF <span className="text-primary">ง่าย ๆ</span> ในเบราว์เซอร์
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base text-muted sm:text-lg">
-          รวม แยก หมุน จัดหน้า แปลงรูปภาพ ใส่ลายน้ำและเลขหน้า — เลือกเครื่องมือด้านล่างได้เลย
+          รวม แยก หมุน จัดหน้า แปลงรูปภาพ แปลงเป็น Word ใส่ลายน้ำและเลขหน้า — เลือกเครื่องมือด้านล่างได้เลย
         </p>
         <ul className="mt-8 grid gap-3 text-left sm:grid-cols-3">
           {PROMISES.map((p) => (
@@ -39,17 +43,17 @@ export default function Home() {
         </ul>
       </section>
 
-      {/* จอใหญ่: หมวดแรก (4 เครื่องมือ) เต็มแถว อีก 2 หมวด (หมวดละ 2) วางคู่กัน — ไม่มีช่องว่างโหว่ */}
-      <div id="tools" className="grid scroll-mt-24 gap-10 lg:grid-cols-2 lg:gap-x-6">
+      {/* จอใหญ่: หมวดแรก (4 เครื่องมือ) เต็มแถว แปลงไฟล์ (3) กับแต่ง PDF (2) วางคู่กันในแถวเดียว — การ์ดกว้างเท่ากัน ไม่มีช่องโหว่ */}
+      <div id="tools" className="grid scroll-mt-24 gap-10 lg:grid-cols-5 lg:gap-x-3">
         {CATEGORIES.map((cat, k) => (
-          <section key={cat.id} aria-labelledby={`cat-${cat.id}`} className={k === 0 ? "lg:col-span-2" : ""}>
+          <section key={cat.id} aria-labelledby={`cat-${cat.id}`} className={SECTION_SPAN[k] ?? ""}>
             <div className="mb-4 flex items-baseline gap-3">
               <h2 id={`cat-${cat.id}`} className="text-xl font-bold tracking-tight">
                 {cat.title}
               </h2>
               <span className="text-sm text-muted">{cat.summary}</span>
             </div>
-            <ul className={`grid grid-cols-2 gap-3 ${k === 0 ? "lg:grid-cols-4" : ""}`}>
+            <ul className={`grid grid-cols-2 gap-3 ${LIST_COLS[k] ?? ""}`}>
               {TOOLS.filter((t) => t.category === cat.id).map((tool) => (
                 <li key={tool.slug}>
                   <Link
@@ -105,7 +109,7 @@ export default function Home() {
         <h2 id="soon-heading" className="mb-1 text-xl font-bold tracking-tight">
           เร็ว ๆ นี้
         </h2>
-        <p className="mb-4 text-sm text-muted">เครื่องมือที่ต้องใช้เซิร์ฟเวอร์ — กำลังเตรียมในเวอร์ชันถัดไป</p>
+        <p className="mb-4 text-sm text-muted">กำลังเตรียมในเวอร์ชันถัดไป — ทำงานในเบราว์เซอร์เหมือนเดิม ไฟล์ไม่ออกจากเครื่อง</p>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {UPCOMING.map((item) => (
             <li key={item.title} className="flex gap-3 rounded-2xl border border-dashed border-line p-4">

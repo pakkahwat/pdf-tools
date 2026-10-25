@@ -16,8 +16,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // ไฟล์ pdf.js ที่คัดลอกมา และผลการทดสอบ
-    "public/pdfjs/**",
+    // ไฟล์ static (pdf.js ที่คัดลอกมา, worker ของ PDF → Word ที่ไม่ผ่าน bundler) และผลการทดสอบ
+    "public/**",
     "e2e/report/**",
     "e2e/test-results/**",
   ]),

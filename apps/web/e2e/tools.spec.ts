@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
+import { strFromU8, unzipSync } from "fflate";
 import { inspectPdf, makePdf, makePng } from "../test-utils/fixtures";
 
 type Upload = { name: string; mimeType: string; buffer: Buffer };
@@ -27,10 +28,10 @@ async function download(page: Page) {
 
 const magic = (b: Uint8Array) => Array.from(b.slice(0, 4));
 
-test("หน้าแรกแสดงเครื่องมือทั้ง 8 และกดเข้าใช้งานได้", async ({ page }) => {
+test("หน้าแรกแสดงเครื่องมือทั้ง 9 และกดเข้าใช้งานได้", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("PDF");
-  await expect(page.locator("#tools").getByRole("link")).toHaveCount(8);
+  await expect(page.locator("#tools").getByRole("link")).toHaveCount(9);
   await page.locator("#tools").getByRole("link", { name: /รวม PDF/ }).click();
   await expect(page).toHaveURL(/\/merge$/);
   await expect(page.getByRole("list", { name: "ขั้นตอนการใช้งาน" })).toBeVisible();
@@ -115,6 +116,21 @@ test("PDF → รูปภาพ (หน้าเดียวได้ไฟล�
   const out = await download(page);
   expect(out.name).toBe("doc-page-1.jpg");
   expect(magic(out.bytes).slice(0, 2)).toEqual([0xff, 0xd8]);
+});
+
+test("PDF → Word ได้ไฟล์ DOCX ที่มีข้อความเดิม", async ({ page }, testInfo) => {
+  // โหลดตัวแปลง (Pyodide + PyMuPDF ราว 40MB จาก CDN) — ทดสอบเฉพาะบนเดสก์ท็อปพอ
+  test.skip(testInfo.project.name !== "desktop", "ตัวแปลงเหมือนกันทุกจอ");
+  test.setTimeout(240_000);
+  await page.goto("/pdf-to-word");
+  await upload(page, [{ name: "letter.pdf", mimeType: "application/pdf", buffer: Buffer.from(await makePdf(2, { label: "Hello" })) }]);
+  await page.getByRole("button", { name: "แปลงเป็น Word", exact: true }).click();
+  await expect(page.getByText("เสร็จแล้ว", { exact: true })).toBeVisible({ timeout: 200_000 });
+  const out = await download(page);
+  expect(out.name).toBe("letter.docx");
+  const xml = strFromU8(unzipSync(out.bytes)["word/document.xml"]);
+  expect(xml).toContain("Hello 1");
+  expect(xml).toContain("Hello 2");
 });
 
 test("ใส่ลายน้ำข้อความไทย", async ({ page }) => {
