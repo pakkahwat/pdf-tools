@@ -2,6 +2,8 @@
 
 เครื่องมือจัดการ PDF แบบเว็บ (คล้าย iLovePDF) สำหรับใช้เองและแชร์ให้คนที่ต้องการ — **ไม่ใช่เชิงพาณิชย์ ใช้ของฟรีทั้งหมด**
 
+🌐 ใช้งานได้ที่ **https://pdf.devda.fyi**
+
 เฟส 1 ทุกเครื่องมือทำงานในเบราว์เซอร์ของผู้ใช้ — ไฟล์ไม่ถูกอัปโหลดขึ้นเซิร์ฟเวอร์ จึงไม่มีค่าเซิร์ฟเวอร์
 
 | เครื่องมือ | หน้า | ทำงานด้วย |
@@ -40,6 +42,12 @@ npm install          # postinstall คัดลอกไฟล์ pdf.js ไป�
 npm run dev          # http://localhost:3001
 npm run lint && npm run typecheck && npm test
 npm run e2e          # ครั้งแรก: npx playwright install chromium
+```
+
+ทดสอบเว็บที่ deploy แล้ว (ไม่เปิดเซิร์ฟเวอร์ในเครื่อง) — PowerShell:
+
+```powershell
+$env:E2E_BASE_URL = "https://pdf.devda.fyi"; npm run e2e
 ```
 
 ## CI/CD
