@@ -12,7 +12,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: CI,
   retries: CI ? 1 : 0,
-  reporter: CI ? [["list"], ["html", { open: "never", outputFolder: "e2e/report" }]] : [["list"]],
+  // "github" ทำให้เทสต์ที่ล้มขึ้นเป็น annotation บนหน้า Actions/PR (อ่านได้โดยไม่ต้องเปิด log)
+  reporter: CI ? [["list"], ["github"], ["html", { open: "never", outputFolder: "e2e/report" }]] : [["list"]],
   outputDir: "e2e/test-results",
   use: {
     baseURL: `http://localhost:${PORT}`,
