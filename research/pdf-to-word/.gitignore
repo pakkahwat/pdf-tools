@@ -1,0 +1,6 @@
+venv/
+in/
+out/
+cmp/
+fonts/
+__pycache__/
